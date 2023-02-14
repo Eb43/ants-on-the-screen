@@ -1,0 +1,116 @@
+<!--
+create an html page with the javascript. The javascript draws a button Start in the top of the page and a stopwatch below. 10 dots randomly placed on the horizontal line. The line is located in the middle of the page. When button is pressed all dots start moving randomly to the left or to the right border of the page with the speed 5 px per second. When the Start is pressed the stopwatch launches a countdown. Stopwatch stops when the last dot reaches the screen border. 
+
+When Start button is pressed again the script restarts.
+-->
+
+<html>
+<head>
+  <style>
+    #container {
+      width: 100%;
+      height: 300px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #stopwatch {
+      margin-top: 20px;
+      margin-bottom: 150px;
+      font-size: 30px;
+    }
+
+    .dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 3px;
+      background-color: black;
+      position: absolute;
+    }
+  </style>
+</head>
+<body>
+  <div id="container">
+    <button id="startBtn">Start</button>
+    <div id="stopwatch"></div>
+  </div>
+  <script>
+    let k = 0;
+    const dots = [];
+    const container = document.getElementById("container");
+    const stopwatch = document.getElementById("stopwatch");
+    const startBtn = document.getElementById("startBtn");
+    let timerId;
+    let startTime;
+    let dotsInMotion = false;
+
+    function random(min, max) {
+      return Math.floor(Math.random() * (max - min + 1) + min);
+    }
+
+    function createDots() {
+      for (let i = 0; i < 10; i++) {
+        const dot = document.createElement("div");
+        dot.classList.add("dot");
+        dot.style.left = `${random(0, container.offsetWidth - 10)}px`;
+        container.appendChild(dot);
+        dots.push(dot);
+      }
+    }
+
+    function startStopwatch() {
+      startTime = Date.now();
+      timerId = setInterval(() => {
+        const elapsedTime = Date.now() - startTime;
+        stopwatch.textContent = (elapsedTime / 1000).toFixed(2);
+      }, 10);
+    }
+
+    function stopStopwatch() {
+      clearInterval(timerId);
+    }
+
+    function moveDots() {
+      dots.forEach((dot) => {
+        const direction = random(0, 1) === 0 ? -1 : 1;
+        const moveIntervalId = setInterval(() => {
+          dot.style.left = `${
+            dot.offsetLeft + 5 * direction
+          }px`;
+
+          if (dot.offsetLeft <= 0 || dot.offsetLeft >= container.offsetWidth - 10) {
+            clearInterval(moveIntervalId);
+            dots.splice(dots.indexOf(dot), 1);
+
+            if (!dots.length) {
+              dotsInMotion = false;
+              stopStopwatch();
+            }
+          }
+        }, 50);
+      });
+    }
+
+    startBtn.addEventListener("click", function () {
+      if ((!dotsInMotion)&&(k<=1)) {
+        startStopwatch();
+        moveDots();
+        dotsInMotion = true;
+        k=k+2;
+      } else {
+        stopStopwatch();
+        dots.forEach((dot) => dot.remove());
+        dotsInMotion = false;
+        dots.length = 0;
+        createDots();
+        k = 0;
+      }
+
+    });
+
+    createDots();
+  </script>
+</body>
+</html>
